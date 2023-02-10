@@ -26,7 +26,9 @@ import lombok.ToString;
 public class Utente {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int username;
+	private int id;
+	
+	private String username;
 	
 	@Column(name = "NomeCompleto")
 	private String nome;

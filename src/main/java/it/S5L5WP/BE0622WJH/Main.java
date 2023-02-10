@@ -193,6 +193,8 @@ public class Main implements CommandLineRunner {
 		Utente ut = new Utente();
 		Scanner in = new Scanner(System.in);
 		
+		System.out.println("Inserisci un username:");
+		ut.setUsername(in.nextLine());
         System.out.println("Inserisci il tuo nome completo:");
         ut.setNome(in.nextLine());
         System.out.println("Inserisci l'email:");
@@ -203,7 +205,7 @@ public class Main implements CommandLineRunner {
         attesa(1);
         System.out.println("Utente Creato con successo");
         attesa(1);
-        System.out.println("Ecco il tuo Codice/Id Utente: " + ut.getUsername() + "\n");
+        System.out.println("Ecco il tuo Codice/Id Utente: " + ut.getId() + "\n");
         attesa(2);
         opzioniUtente();
         in.close();
@@ -292,12 +294,18 @@ public class Main implements CommandLineRunner {
 		Prenotazione pr = new Prenotazione();
 		
 		System.out.println("Inserire il codice utente:");
-		Utente user = selezionaUtente(Integer.parseInt(in.nextLine()));
-		pr.setUtente( user);
+		String user = in.nextLine();
+        try {
+            pr.setUtente(trovaUtente((int)Integer.parseInt(user)));
+        } catch (Exception e) {
+            System.out.println("Utente non trovato!");
+            creaPrenotazione();
+        }
+
 		while(true) {
 			System.out.println("Che giorno vuoi prenotare? formato 'YYYY-MM-DD':");
 			try {
-				pr.setData(convertiData(in.nextLine(), user ));
+				pr.setData(convertiData(in.nextLine(), trovaUtente((int)Integer.parseInt(user))));
 				break;
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
@@ -335,7 +343,7 @@ public class Main implements CommandLineRunner {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			LocalDate data = LocalDate.parse(s, formatter);
 			LocalDate dataOra = LocalDate.now();
-			List<Prenotazione> lista = pRepo.findByUser(user.getNome());
+			List<Prenotazione> lista = pRepo.findByUser(user.getUsername());
 			if (data.isBefore(dataOra)) {
 				throw new Exception("Errore: la data è gia passata.");
 			}
@@ -356,9 +364,14 @@ public class Main implements CommandLineRunner {
 		}
 	}
 	
-	public Utente selezionaUtente(int u) {
-		return uRepo.findByUsername(u);
-	}
+	public Utente trovaUtente(int u) throws Exception {
+        Utente user = uRepo.findById(u);
+        if(user != null) {
+            return user;
+        } else {
+        	throw new Exception("Codice utente non valido");
+        }
+    }
 	
 	public void getListaPostazioni() {
 		List<Postazione> x = postRepo.findAll();
@@ -373,8 +386,13 @@ public class Main implements CommandLineRunner {
 			}
 		}
 	}
-	public Postazione selezionaPostazione(int p) {
-		return postRepo.findById(p);
+	public Postazione selezionaPostazione(int p) throws Exception {
+        Postazione post = postRepo.findById(p);
+        if(post != null) {
+            return post;
+        } else {
+        	throw new Exception("Postazione non valida");
+        }
 	}
 	
 	//attesa thread

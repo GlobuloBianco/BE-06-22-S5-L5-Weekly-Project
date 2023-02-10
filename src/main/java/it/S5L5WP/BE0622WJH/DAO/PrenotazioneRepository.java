@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import it.S5L5WP.BE0622WJH.entity.Prenotazione;
+import it.S5L5WP.BE0622WJH.entity.Utente;
 
 @Repository
 public interface PrenotazioneRepository extends JpaRepository<Prenotazione, Integer> {
@@ -15,6 +16,6 @@ public interface PrenotazioneRepository extends JpaRepository<Prenotazione, Inte
 	@Query(value = "SELECT * FROM prenotazione", nativeQuery = true)
 	List<Prenotazione> findAll();
 	
-	@Query(value = "SELECT * FROM prenotazione p INNER JOIN utente u ON p.utente_id = u.username WHERE u.nome_completo = :elemento", nativeQuery = true)
-	List<Prenotazione> findByUser(@Param("elemento") String elemento);
+	@Query(value = "SELECT p.*, u.id as u_id FROM prenotazione p INNER JOIN utente u ON p.utente_id = u.id WHERE u.username = :elemento", nativeQuery = true)
+	List<Prenotazione> findByUser(@Param("elemento") String e);
 }
